@@ -148,59 +148,59 @@ class EventCfg:
     """Configuration for randomization."""
 
     # -- robot
-    robot_physics_material = EventTerm(
-        func=mdp.randomize_rigid_body_material,
-        mode="startup",  # Changed from startup to reset to match shadow hands tasks
-        # min_step_count_between_reset=720,  # Added parameter from shadow hands tasks
-        params={
-            "asset_cfg": SceneEntityCfg("robot"),
-            "static_friction_range": (0.7, 1.3),
-            "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
-            "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
-            "num_buckets": 250,
-        },
-    )
+    # robot_physics_material = EventTerm(
+    #     func=mdp.randomize_rigid_body_material,
+    #     mode="startup",  # Changed from startup to reset to match shadow hands tasks
+    #     # min_step_count_between_reset=720,  # Added parameter from shadow hands tasks
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot"),
+    #         "static_friction_range": (0.7, 1.3),
+    #         "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+    #         "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+    #         "num_buckets": 250,
+    #     },
+    # )
     
-    robot_joint_stiffness_and_damping = EventTerm(
-        func=mdp.randomize_actuator_gains,
-        mode="startup",  # Changed from startup to reset
-        # min_step_count_between_reset=720,  # Added parameter
-        params={
-            "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
-            "stiffness_distribution_params": (0.75, 1.5),  # Updated to match shadow hands tasks
-            "damping_distribution_params": (0.3, 3.0),  # Updated to match shadow hands tasks
-            "operation": "scale",
-            "distribution": "log_uniform",
-        },
-    )
+    # robot_joint_stiffness_and_damping = EventTerm(
+    #     func=mdp.randomize_actuator_gains,
+    #     mode="startup",  # Changed from startup to reset
+    #     # min_step_count_between_reset=720,  # Added parameter
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
+    #         "stiffness_distribution_params": (0.75, 1.5),  # Updated to match shadow hands tasks
+    #         "damping_distribution_params": (0.3, 3.0),  # Updated to match shadow hands tasks
+    #         "operation": "scale",
+    #         "distribution": "log_uniform",
+    #     },
+    # )
     
     # Added joint position limits randomization from shadow hands tasks
-    robot_joint_pos_limits = EventTerm(
-        func=mdp.randomize_joint_parameters,
-        # min_step_count_between_reset=720,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
-            "lower_limit_distribution_params": (0.00, 0.01),
-            "upper_limit_distribution_params": (0.00, 0.01),  # Fixed typo
-            "operation": "add",
-            "distribution": "gaussian",
-        },
-    )
+    # robot_joint_pos_limits = EventTerm(
+    #     func=mdp.randomize_joint_parameters,
+    #     # min_step_count_between_reset=720,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
+    #         "lower_limit_distribution_params": (0.00, 0.01),
+    #         "upper_limit_distribution_params": (0.00, 0.01),  # Fixed typo
+    #         "operation": "add",
+    #         "distribution": "gaussian",
+    #     },
+    # )
     
     # Added tendon properties randomization from shadow hands tasks
-    robot_tendon_properties = EventTerm(
-        func=mdp.randomize_fixed_tendon_parameters,
-        # min_step_count_between_reset=720,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", fixed_tendon_names=".*"),
-            "stiffness_distribution_params": (0.75, 1.5),
-            "damping_distribution_params": (0.3, 3.0),
-            "operation": "scale",
-            "distribution": "log_uniform",
-        },
-    )
+    # robot_tendon_properties = EventTerm(
+    #     func=mdp.randomize_fixed_tendon_parameters,
+    #     # min_step_count_between_reset=720,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", fixed_tendon_names=".*"),
+    #         "stiffness_distribution_params": (0.75, 1.5),
+    #         "damping_distribution_params": (0.3, 3.0),
+    #         "operation": "scale",
+    #         "distribution": "log_uniform",
+    #     },
+    # )
 
     # -- object
     object_physics_material = EventTerm(
@@ -253,9 +253,9 @@ class EventCfg:
         func=mdp.reset_joints_within_limits_range,
         mode="reset",
         params={
-            "position_range": {".*": [0.2, 0.2]},
+            "position_range": {".*": [0.001, 0.001]},
             "velocity_range": {".*": [0.0, 0.0]},
-            "use_default_offset": True,
+            "use_default_offset": False,
             "operation": "scale",
         },
     )
@@ -340,11 +340,11 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
                 stabilization_threshold=0.0025,
                 max_depenetration_velocity=1000.0,
             ),
-            mass_props=sim_utils.MassPropertiesCfg(density=567.0),
+            mass_props=sim_utils.MassPropertiesCfg(density=1.0),
         ),
         # 
         # 0.0, -0.19, 0.5
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, -0.39, 0.6), rot=(1.0, 0.0, 0.0, 0.0)),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.12, 0.0, 0.05), rot=(1, 0.0, 0.0, 0.0)),
     )
 
     # lights
@@ -430,6 +430,40 @@ class ReposeCubeEnvCfg_PLAY(ReposeCubeEnvCfg):
         # remove termination due to timeouts
         self.terminations.time_out = None
 
-##
-# Environment configuration with no velocity observations.
-##
+
+# @configclass
+# class ReposeCubeEnvCfg_ZERO(ReposeCubeEnvCfg):
+#     """Environment configuration for zero agent with straight hand configuration."""
+    
+#     def __post_init__(self):
+#         # post init of parent
+#         super().__post_init__()
+#         # make a smaller scene for zero agent
+#         self.scene.num_envs = 1
+#         # disable randomization
+#         self.observations.policy.enable_corruption = False
+        
+#         # Override the reset_robot_joints event to ensure straight joints
+#         self.events.reset_robot_joints = EventTerm(
+#             func=mdp.reset_joints_within_limits_range,
+#             mode="reset",
+#             params={
+#                 "position_range": {".*": [0.0, 0.0]},  # Set to 0.0 for straight configuration
+#                 "velocity_range": {".*": [0.0, 0.0]},
+#                 "use_default_offset": False,  # Don't use default offsets
+#                 "operation": "absolute",  # Use absolute values instead of scaling
+#             },
+#         )
+        
+#         # Optionally, set initial joint positions in the robot config if needed
+#         # self.scene.robot = self.scene.robot.replace(
+#         #     init_state=ArticulationCfg.InitialStateCfg(
+#         #         pos=(0.0, 0.0, 0.5),
+#         #         rot=(1.0, 0.0, 0.0, 0.0),
+#         #         joint_pos={".*": 0.0},
+#         #     )
+#         # )
+
+# ##
+# # Environment configuration with no velocity observations.
+# ##
