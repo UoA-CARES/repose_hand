@@ -8,6 +8,11 @@
 # from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 from isaaclab_assets.robots.shadow_hand import SHADOW_HAND_CFG
 from isaaclab_assets import ALLEGRO_HAND_CFG
+
+import sys
+sys.path.append("/home/lee/code/repose_cube")
+from source.assets.uoa_hand_cfg import UOA_HAND_CONFIG  # isort: skip
+# from source.assets import UOA_HAND_CFG
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 # All rights reserved.
 #
@@ -142,35 +147,56 @@ class ObservationsCfg:
 class EventCfg:
     """Configuration for randomization."""
 
-    # startup
     # -- robot
     robot_physics_material = EventTerm(
         func=mdp.randomize_rigid_body_material,
-        mode="startup",
+        mode="startup",  # Changed from startup to reset to match shadow hands tasks
+        # min_step_count_between_reset=720,  # Added parameter from shadow hands tasks
         params={
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
+            "asset_cfg": SceneEntityCfg("robot"),
             "static_friction_range": (0.7, 1.3),
-            "dynamic_friction_range": (0.7, 1.3),
-            "restitution_range": (0.0, 0.0),
+            "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+            "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
             "num_buckets": 250,
         },
     )
-    robot_scale_mass = EventTerm(
-        func=mdp.randomize_rigid_body_mass,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            "mass_distribution_params": (0.95, 1.05),
-            "operation": "scale",
-        },
-    )
+    
     robot_joint_stiffness_and_damping = EventTerm(
         func=mdp.randomize_actuator_gains,
+        mode="startup",  # Changed from startup to reset
+        # min_step_count_between_reset=720,  # Added parameter
+        params={
+            "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
+            "stiffness_distribution_params": (0.75, 1.5),  # Updated to match shadow hands tasks
+            "damping_distribution_params": (0.3, 3.0),  # Updated to match shadow hands tasks
+            "operation": "scale",
+            "distribution": "log_uniform",
+        },
+    )
+    
+    # Added joint position limits randomization from shadow hands tasks
+    robot_joint_pos_limits = EventTerm(
+        func=mdp.randomize_joint_parameters,
+        # min_step_count_between_reset=720,
         mode="startup",
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
-            "stiffness_distribution_params": (0.3, 3.0),  # default: 3.0
-            "damping_distribution_params": (0.75, 1.5),  # default: 0.1
+            "lower_limit_distribution_params": (0.00, 0.01),
+            "upper_limit_distribution_params": (0.00, 0.01),  # Fixed typo
+            "operation": "add",
+            "distribution": "gaussian",
+        },
+    )
+    
+    # Added tendon properties randomization from shadow hands tasks
+    robot_tendon_properties = EventTerm(
+        func=mdp.randomize_fixed_tendon_parameters,
+        # min_step_count_between_reset=720,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", fixed_tendon_names=".*"),
+            "stiffness_distribution_params": (0.75, 1.5),
+            "damping_distribution_params": (0.3, 3.0),
             "operation": "scale",
             "distribution": "log_uniform",
         },
@@ -179,26 +205,41 @@ class EventCfg:
     # -- object
     object_physics_material = EventTerm(
         func=mdp.randomize_rigid_body_material,
-        mode="startup",
+        mode="reset",  # Changed from startup to reset
+        min_step_count_between_reset=720,  # Added parameter
         params={
-            "asset_cfg": SceneEntityCfg("object", body_names=".*"),
+            "asset_cfg": SceneEntityCfg("object"),
             "static_friction_range": (0.7, 1.3),
-            "dynamic_friction_range": (0.7, 1.3),
-            "restitution_range": (0.0, 0.0),
+            "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+            "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
             "num_buckets": 250,
         },
     )
+    
     object_scale_mass = EventTerm(
         func=mdp.randomize_rigid_body_mass,
-        mode="startup",
+        mode="reset",  # Changed from startup to reset
+        min_step_count_between_reset=720,  # Added parameter
         params={
             "asset_cfg": SceneEntityCfg("object"),
-            "mass_distribution_params": (0.4, 1.6),
+            "mass_distribution_params": (0.5, 1.5),  # Updated to match shadow hands tasks
             "operation": "scale",
+            "distribution": "uniform",  # Added distribution parameter
         },
     )
-
-    # reset
+    
+    # # Added gravity randomization from shadow hands tasks
+    # reset_gravity = EventTerm(
+    #     func=mdp.randomize_physics_scene_gravity,
+    #     mode="interval",
+    #     is_global_time=True,
+    #     interval_range_s=(36.0, 36.0),  # time_s = num_steps * (decimation * dt)
+    #     params={
+    #         "gravity_distribution_params": ([0.0, 0.0, 0.0], [0.0, 0.0, 0.4]),
+    #         "operation": "add",
+    #         "distribution": "gaussian",
+    #     },
+    # )
     reset_object = EventTerm(
         func=mdp.reset_root_state_uniform,
         mode="reset",
@@ -264,7 +305,7 @@ class TerminationsCfg:
         func=mdp.max_consecutive_success, params={"num_success": 50, "command_name": "object_pose"}
     )
 
-    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 0.3})
+    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 0.6})
 
     # object_out_of_reach = DoneTerm(
     #     func=mdp.object_away_from_goal, params={"threshold": 0.24, "command_name": "object_pose"}
@@ -274,12 +315,17 @@ class TerminationsCfg:
 class InHandObjectSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
 
-    # # robots
-    # robot: ArticulationCfg = SHADOW_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-    # robot
-    robot: ArticulationCfg = ALLEGRO_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+    # robot configuration updated to match shadow hands tasks
+    robot: ArticulationCfg = UOA_HAND_CONFIG.replace(prim_path="/World/envs/env_.*/Robot")
+    # .replace(
+    #     init_state=ArticulationCfg.InitialStateCfg(
+    #         pos=(0.0, 0.0, 0.5),
+    #         rot=(1.0, 0.0, 0.0, 0.0),
+    #         joint_pos={".*": 0.0},
+    #     )
+    # )
 
-    # objects
+    # object configuration updated with more physics properties from shadow hands tasks
     object: RigidObjectCfg = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/object",
         spawn=sim_utils.UsdFileCfg(
@@ -294,9 +340,11 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
                 stabilization_threshold=0.0025,
                 max_depenetration_velocity=1000.0,
             ),
-            mass_props=sim_utils.MassPropertiesCfg(density=400.0),
+            mass_props=sim_utils.MassPropertiesCfg(density=567.0),
         ),
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, -0.19, 0.56), rot=(1.0, 0.0, 0.0, 0.0)),
+        # 
+        # 0.0, -0.19, 0.5
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, -0.39, 0.6), rot=(1.0, 0.0, 0.0, 0.0)),
     )
 
     # lights
@@ -309,6 +357,12 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
         prim_path="/World/domeLight",
         spawn=sim_utils.DomeLightCfg(color=(0.02, 0.02, 0.02), intensity=1000.0),
     )
+
+    # Update scene spacing to match shadow hands tasks
+    def __post_init__(self):
+        super().__post_init__()
+        self.env_spacing = 0.75
+        self.replicate_physics = True
 
 ##
 # Environment configuration

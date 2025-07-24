@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+# python scripts/random_agent.py --num_envs 1 --task Isaac-Repose-Cube-Allegro-v0
+
 """Script to an environment with random action agent."""
 
 """Launch Isaac Sim Simulator first."""
