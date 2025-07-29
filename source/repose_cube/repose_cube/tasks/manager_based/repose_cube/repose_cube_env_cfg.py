@@ -38,14 +38,6 @@ from isaaclab.utils.noise import AdditiveGaussianNoiseCfg as Gnoise
 
 import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
 
-##
-# Scene definition
-##
-
-
-##
-# MDP settings
-##
 
 
 @configclass
@@ -202,31 +194,31 @@ class EventCfg:
     #     },
     # )
 
-    # -- object
-    object_physics_material = EventTerm(
-        func=mdp.randomize_rigid_body_material,
-        mode="reset",  # Changed from startup to reset
-        min_step_count_between_reset=720,  # Added parameter
-        params={
-            "asset_cfg": SceneEntityCfg("object"),
-            "static_friction_range": (0.7, 1.3),
-            "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
-            "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
-            "num_buckets": 250,
-        },
-    )
+    # # -- object
+    # object_physics_material = EventTerm(
+    #     func=mdp.randomize_rigid_body_material,
+    #     mode="reset",  # Changed from startup to reset
+    #     min_step_count_between_reset=720,  # Added parameter
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("object"),
+    #         "static_friction_range": (0.7, 1.3),
+    #         "dynamic_friction_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+    #         "restitution_range": (1.0, 1.0),  # Updated to match shadow hands tasks
+    #         "num_buckets": 250,
+    #     },
+    # )
     
-    object_scale_mass = EventTerm(
-        func=mdp.randomize_rigid_body_mass,
-        mode="reset",  # Changed from startup to reset
-        min_step_count_between_reset=720,  # Added parameter
-        params={
-            "asset_cfg": SceneEntityCfg("object"),
-            "mass_distribution_params": (0.5, 1.5),  # Updated to match shadow hands tasks
-            "operation": "scale",
-            "distribution": "uniform",  # Added distribution parameter
-        },
-    )
+    # object_scale_mass = EventTerm(
+    #     func=mdp.randomize_rigid_body_mass,
+    #     mode="reset",  # Changed from startup to reset
+    #     min_step_count_between_reset=720,  # Added parameter
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("object"),
+    #         "mass_distribution_params": (0.5, 1.5),  # Updated to match shadow hands tasks
+    #         "operation": "scale",
+    #         "distribution": "uniform",  # Added distribution parameter
+    #     },
+    # )
     
     # # Added gravity randomization from shadow hands tasks
     # reset_gravity = EventTerm(
@@ -249,6 +241,20 @@ class EventCfg:
             "asset_cfg": SceneEntityCfg("object", body_names=".*"),
         },
     )
+    
+    # # Add a new event to fix the robot position
+    # fix_robot_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="interval",
+    #     interval_range_s=(0., 0.),  # enforce every 0.1 seconds (adjust as needed)
+    #     params={
+    #         "pose_range": {"x": [0.0, 0.0], "y": [0.0, 0.0], "z": [0.0, 0.0]},
+    #         "velocity_range": {"x": [0.0, 0.0], "y": [0.0, 0.0], "z": [0.0, 0.0], 
+    #                            "ang_x": [0.0, 0.0], "ang_y": [0.0, 0.0], "ang_z": [0.0, 0.0]},
+    #         "asset_cfg": SceneEntityCfg("robot"),
+    #     },
+    # )
+    
     reset_robot_joints = EventTerm(
         func=mdp.reset_joints_within_limits_range,
         mode="reset",
@@ -305,7 +311,7 @@ class TerminationsCfg:
         func=mdp.max_consecutive_success, params={"num_success": 50, "command_name": "object_pose"}
     )
 
-    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 0.6})
+    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 100})
 
     # object_out_of_reach = DoneTerm(
     #     func=mdp.object_away_from_goal, params={"threshold": 0.24, "command_name": "object_pose"}
@@ -314,16 +320,13 @@ class TerminationsCfg:
 @configclass
 class InHandObjectSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
-
-    # robot configuration updated to match shadow hands tasks
-    robot: ArticulationCfg = UOA_HAND_CONFIG.replace(prim_path="/World/envs/env_.*/Robot")
-    # .replace(
-    #     init_state=ArticulationCfg.InitialStateCfg(
-    #         pos=(0.0, 0.0, 0.5),
-    #         rot=(1.0, 0.0, 0.0, 0.0),
-    #         joint_pos={".*": 0.0},
-    #     )
-    # )
+    robot: ArticulationCfg = SHADOW_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot").replace(
+        init_state=ArticulationCfg.InitialStateCfg(
+            pos=(0.0, 0.4, 0.0),
+            rot=(1.0, 0.0, 0.0, 0.0),
+            # joint_pos={".*": 0.001},
+        )
+    )
 
     # object configuration updated with more physics properties from shadow hands tasks
     object: RigidObjectCfg = RigidObjectCfg(
@@ -340,12 +343,13 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
                 stabilization_threshold=0.0025,
                 max_depenetration_velocity=1000.0,
             ),
-            mass_props=sim_utils.MassPropertiesCfg(density=1.0),
+            mass_props=sim_utils.MassPropertiesCfg(density=500.0),
         ),
         # 
         # 0.0, -0.19, 0.5
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.12, 0.0, 0.05), rot=(1, 0.0, 0.0, 0.0)),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.1), rot=(1, 0.0, 0.0, 0.0)),
     )
+    
 
     # lights
     light = AssetBaseCfg(
@@ -357,12 +361,13 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
         prim_path="/World/domeLight",
         spawn=sim_utils.DomeLightCfg(color=(0.02, 0.02, 0.02), intensity=1000.0),
     )
+    
 
     # Update scene spacing to match shadow hands tasks
     def __post_init__(self):
         super().__post_init__()
         self.env_spacing = 0.75
-        self.replicate_physics = True
+        self.replicate_physics = False
 
 ##
 # Environment configuration
@@ -373,7 +378,8 @@ class InHandObjectEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the in hand reorientation environment."""
 
     # Scene settings
-    scene: InHandObjectSceneCfg = InHandObjectSceneCfg(num_envs=8192, env_spacing=0.6)
+    scene: InHandObjectSceneCfg = InHandObjectSceneCfg(num_envs=8192, env_spacing=1.0)  # Increased spacing
+    
     # Simulation settings
     sim: SimulationCfg = SimulationCfg(
         physics_material=RigidBodyMaterialCfg(
@@ -424,7 +430,7 @@ class ReposeCubeEnvCfg_PLAY(ReposeCubeEnvCfg):
         # post init of parent
         super().__post_init__()
         # make a smaller scene for play
-        self.scene.num_envs = 1
+        self.scene.num_envs = 4
         # disable randomization for play
         self.observations.policy.enable_corruption = False
         # remove termination due to timeouts
@@ -466,4 +472,5 @@ class ReposeCubeEnvCfg_PLAY(ReposeCubeEnvCfg):
 
 # ##
 # # Environment configuration with no velocity observations.
+
 # ##
