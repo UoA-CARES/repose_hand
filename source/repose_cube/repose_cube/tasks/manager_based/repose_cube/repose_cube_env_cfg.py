@@ -7,7 +7,7 @@
 # import isaaclab_tasks.manager_based.manipulation.inhand.inhand_env_cfg as inhand_env_cfg
 # from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 from isaaclab_assets.robots.shadow_hand import SHADOW_HAND_CFG
-from isaaclab_assets import ALLEGRO_HAND_CFG
+from isaaclab_assets.robots.allegro import ALLEGRO_HAND_CFG
 
 import sys
 sys.path.append("/home/lee/code/repose_cube")
@@ -36,7 +36,8 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveGaussianNoiseCfg as Gnoise
 
-import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
+# import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
+import source.repose_cube.repose_cube.tasks.manager_based.repose_cube.mdp as mdp
 
 
 
@@ -232,15 +233,15 @@ class EventCfg:
     #         "distribution": "gaussian",
     #     },
     # )
-    reset_object = EventTerm(
-        func=mdp.reset_root_state_uniform,
-        mode="reset",
-        params={
-            "pose_range": {"x": [-0.01, 0.01], "y": [-0.01, 0.01], "z": [-0.01, 0.01]},
-            "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object", body_names=".*"),
-        },
-    )
+    # reset_object = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": [-0.01, 0.01], "y": [-0.01, 0.01], "z": [-0.01, 0.01]},
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object", body_names=".*"),
+    #     },
+    # )
     
     # # Add a new event to fix the robot position
     # fix_robot_position = EventTerm(
@@ -255,16 +256,16 @@ class EventCfg:
     #     },
     # )
     
-    reset_robot_joints = EventTerm(
-        func=mdp.reset_joints_within_limits_range,
-        mode="reset",
-        params={
-            "position_range": {".*": [0.001, 0.001]},
-            "velocity_range": {".*": [0.0, 0.0]},
-            "use_default_offset": False,
-            "operation": "scale",
-        },
-    )
+    # reset_robot_joints = EventTerm(
+    #     func=mdp.reset_joints_within_limits_range,
+    #     mode="reset",
+    #     params={
+    #         "position_range": {".*": [0.001, 0.001]},
+    #         "velocity_range": {".*": [0.0, 0.0]},
+    #         "use_default_offset": False,
+    #         "operation": "scale",
+    #     },
+    # )
 
 
 @configclass
@@ -277,21 +278,21 @@ class RewardsCfg:
     #     weight=-10.0,
     #     params={"object_cfg": SceneEntityCfg("object"), "command_name": "object_pose"},
     # )
-    track_orientation_inv_l2 = RewTerm(
-        func=mdp.track_orientation_inv_l2,
-        weight=1.0,
-        params={"object_cfg": SceneEntityCfg("object"), "rot_eps": 0.1, "command_name": "object_pose"},
-    )
-    success_bonus = RewTerm(
-        func=mdp.success_bonus,
-        weight=250.0,
-        params={"object_cfg": SceneEntityCfg("object"), "command_name": "object_pose"},
-    )
+    # track_orientation_inv_l2 = RewTerm(
+    #     func=mdp.track_orientation_inv_l2,
+    #     weight=1.0,
+    #     params={"object_cfg": SceneEntityCfg("object"), "rot_eps": 0.1, "command_name": "object_pose"},
+    # )
+    # success_bonus = RewTerm(
+    #     func=mdp.success_bonus,
+    #     weight=250.0,
+    #     params={"object_cfg": SceneEntityCfg("object"), "command_name": "object_pose"},
+    # )
 
-    # -- penalties
-    joint_vel_l2 = RewTerm(func=mdp.joint_vel_l2, weight=-2.5e-5)
-    action_l2 = RewTerm(func=mdp.action_l2, weight=-0.0001)
-    action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
+    # # -- penalties
+    # joint_vel_l2 = RewTerm(func=mdp.joint_vel_l2, weight=-2.5e-5)
+    # action_l2 = RewTerm(func=mdp.action_l2, weight=-0.0001)
+    # action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
 
     # -- optional penalties (these are disabled by default)
     # object_away_penalty = RewTerm(
@@ -307,24 +308,26 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
-    max_consecutive_success = DoneTerm(
-        func=mdp.max_consecutive_success, params={"num_success": 50, "command_name": "object_pose"}
-    )
-
-    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 100})
-
-    # object_out_of_reach = DoneTerm(
-    #     func=mdp.object_away_from_goal, params={"threshold": 0.24, "command_name": "object_pose"}
+    # max_consecutive_success = DoneTerm(
+    #     func=mdp.max_consecutive_success, params={"num_success": 50, "command_name": "object_pose"}
     # )
+
+    # object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 100})
+
+    # # object_out_of_reach = DoneTerm(
+    # #     func=mdp.object_away_from_goal, params={"threshold": 0.24, "command_name": "object_pose"}
+    # # )
 
 @configclass
 class InHandObjectSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
-    robot: ArticulationCfg = SHADOW_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot").replace(
+    robot: ArticulationCfg = UOA_HAND_CONFIG.replace(prim_path="{ENV_REGEX_NS}/Robot").replace(
         init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0.0, 0.4, 0.0),
+            pos=(0.0, 0.0, 0.0),
             rot=(1.0, 0.0, 0.0, 0.0),
-            # joint_pos={".*": 0.001},
+            # joint_pos={".*": 0.3},  # Set all joints to 0.3 to be within limits
+            # For specific joint configuration, you can do:
+            # joint_pos={"thumb_joint_0": 0.5, ".*": 0.3},
         )
     )
 
@@ -374,7 +377,7 @@ class InHandObjectSceneCfg(InteractiveSceneCfg):
 ##
 
 @configclass
-class InHandObjectEnvCfg(ManagerBasedRLEnvCfg):
+class ReposeCubeEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the in hand reorientation environment."""
 
     # Scene settings
@@ -414,15 +417,6 @@ class InHandObjectEnvCfg(ManagerBasedRLEnvCfg):
 
 
 @configclass
-class ReposeCubeEnvCfg(InHandObjectEnvCfg):
-    def __post_init__(self):
-        # post init of parent
-        super().__post_init__()
-        # switch robot to allegro hand
-        # self.scene.robot = ALLEGRO_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-
-
-@configclass
 class ReposeCubeEnvCfg_PLAY(ReposeCubeEnvCfg):
     """Smaller environment configuration for playing/testing."""
     
@@ -435,42 +429,3 @@ class ReposeCubeEnvCfg_PLAY(ReposeCubeEnvCfg):
         self.observations.policy.enable_corruption = False
         # remove termination due to timeouts
         self.terminations.time_out = None
-
-
-# @configclass
-# class ReposeCubeEnvCfg_ZERO(ReposeCubeEnvCfg):
-#     """Environment configuration for zero agent with straight hand configuration."""
-    
-#     def __post_init__(self):
-#         # post init of parent
-#         super().__post_init__()
-#         # make a smaller scene for zero agent
-#         self.scene.num_envs = 1
-#         # disable randomization
-#         self.observations.policy.enable_corruption = False
-        
-#         # Override the reset_robot_joints event to ensure straight joints
-#         self.events.reset_robot_joints = EventTerm(
-#             func=mdp.reset_joints_within_limits_range,
-#             mode="reset",
-#             params={
-#                 "position_range": {".*": [0.0, 0.0]},  # Set to 0.0 for straight configuration
-#                 "velocity_range": {".*": [0.0, 0.0]},
-#                 "use_default_offset": False,  # Don't use default offsets
-#                 "operation": "absolute",  # Use absolute values instead of scaling
-#             },
-#         )
-        
-#         # Optionally, set initial joint positions in the robot config if needed
-#         # self.scene.robot = self.scene.robot.replace(
-#         #     init_state=ArticulationCfg.InitialStateCfg(
-#         #         pos=(0.0, 0.0, 0.5),
-#         #         rot=(1.0, 0.0, 0.0, 0.0),
-#         #         joint_pos={".*": 0.0},
-#         #     )
-#         # )
-
-# ##
-# # Environment configuration with no velocity observations.
-
-# ##

@@ -1,34 +1,38 @@
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+"""Configuration for the Allegro Hand robots from Wonik Robotics.
+
+The following configurations are available:
+
+* :obj:`ALLEGRO_HAND_CFG`: Allegro Hand with implicit actuator model.
+
+Reference:
+
+* https://www.wonikrobotics.com/robot-hand
+
+"""
+
+
 import math
+
 import isaaclab.sim as sim_utils
 from isaaclab.actuators.actuator_cfg import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
+from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
-
-
-# UOA_HAND_CONFIG = ArticulationCfg(
-#     # prim_path="{ENV_REGEX_NS}/Robot",
-#     spawn=sim_utils.UsdFileCfg(
-#         usd_path="/home/lee/code/repose_cube/source/assets/uoa_hand_test_3.usd"),
-#     actuators={
-#         "fingers": ImplicitActuatorCfg(
-#             joint_names_expr=[".*"],
-#             velocity_limit_sim=60.0,  # deg/s (deg because of USD convention)
-#             stiffness=1.0,
-#             damping=0.1,
-#             friction=0.1,
-#             effort_limit_sim=1.0,
-#         ),
-#     },
-#     soft_joint_pos_limit_factor=0.95,  # Use 95% of joint limits (default is 1.0)
-# )
+##
+# Configuration
+##
 
 UOA_HAND_CONFIG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         usd_path=f"/home/lee/code/repose_cube/source/assets/uoa_hand_test_3.usd",
-        joint_drive_props=sim_utils.JointDrivePropertiesCfg(drive_type="force"),
-        fixed_tendons_props=sim_utils.FixedTendonPropertiesCfg(limit_stiffness=30.0, damping=0.1),
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
+            # TODO
             disable_gravity=True,
             retain_accelerations=False,
             enable_gyroscopic_forces=False,
@@ -44,24 +48,24 @@ UOA_HAND_CONFIG = ArticulationCfg(
             solver_velocity_iteration_count=0,
             sleep_threshold=0.005,
             stabilization_threshold=0.0005,
-            fix_root_link=True,  # Fix the base in space
         ),
         # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.0),
-        rot=(1., 0, 0, 0),
-        joint_pos={".*": 0.001},
+        pos=(0.0, 0.0, 0.5),
+        rot=(0.257551, 0.283045, 0.683330, -0.621782),
+        joint_pos={"^(?!thumb_joint_0).*": 0.0, "thumb_joint_0": 0.28},
     ),
     actuators={
         "fingers": ImplicitActuatorCfg(
             joint_names_expr=[".*"],
-            velocity_limit_sim=60.0,  # deg/s (deg because of USD convention)
-            stiffness=1.0,
+            effort_limit=0.5,
+            velocity_limit=100.0,
+            stiffness=3.0,
             damping=0.1,
             friction=0.01,
-            effort_limit_sim=1.0,
         ),
     },
-    # soft_joint_pos_limit_factor=0.95,
+    soft_joint_pos_limit_factor=1.0,
 )
+"""Configuration of Allegro Hand robot."""
