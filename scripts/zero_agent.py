@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -35,7 +35,7 @@ import torch
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils import parse_env_cfg
 
-import repose_cube.tasks  # noqa: F401
+import repose_hand.tasks  # noqa: F401
 
 
 def main():
@@ -58,9 +58,6 @@ def main():
         with torch.inference_mode():
             # compute zero actions
             actions = torch.zeros(env.action_space.shape, device=env.unwrapped.device)
-            # apply actions of 1 
-            actions = actions + 0.1
-            # print(f"[DEBUG] Zero actions: {actions.size()}, {actions.dtype}, {actions.device}")
             # apply actions
             env.step(actions)
 

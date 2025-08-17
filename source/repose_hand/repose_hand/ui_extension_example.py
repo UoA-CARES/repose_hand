@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -8,7 +8,7 @@ import omni.ext
 
 # Functions and vars are available to other extension as usual in python: `example.python_ext.some_public_function(x)`
 def some_public_function(x: int):
-    print("[repose_cube] some_public_function was called with x: ", x)
+    print("[repose_hand] some_public_function was called with x: ", x)
     return x**x
 
 
@@ -19,7 +19,7 @@ class ExampleExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
     def on_startup(self, ext_id):
-        print("[repose_cube] startup")
+        print("[repose_hand] startup")
 
         self._count = 0
 
@@ -43,4 +43,4 @@ class ExampleExtension(omni.ext.IExt):
                     omni.ui.Button("Reset", clicked_fn=on_reset)
 
     def on_shutdown(self):
-        print("[repose_cube] shutdown")
+        print("[repose_hand] shutdown")

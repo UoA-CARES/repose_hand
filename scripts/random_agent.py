@@ -1,9 +1,7 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
-# python scripts/random_agent.py --num_envs 1 --task Isaac-Repose-Cube-Allegro-v0
 
 """Script to an environment with random action agent."""
 
@@ -37,7 +35,7 @@ import torch
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils import parse_env_cfg
 
-import repose_cube.tasks  # noqa: F401
+import repose_hand.tasks  # noqa: F401
 
 
 def main():
@@ -60,7 +58,6 @@ def main():
         with torch.inference_mode():
             # sample actions from -1 to 1
             actions = 2 * torch.rand(env.action_space.shape, device=env.unwrapped.device) - 1
-            # print(f"[DEBUG] Actions size: {actions.size()}, Actions: {actions}")
             # apply actions
             env.step(actions)
 
