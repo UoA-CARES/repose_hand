@@ -25,12 +25,15 @@ from isaaclab.utils.noise import AdditiveGaussianNoiseCfg as Gnoise
 
 import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
 
-from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
+
 ##
 # Pre-defined configs
 ##
 from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 
+import sys
+sys.path.append("/home/lee/code/repose_hand")
+from source.assets.uoa_hand_cfg import UOA_HAND_CONFIG  # isort: skip
 ##
 # Scene definition
 ##
@@ -41,7 +44,7 @@ class ReposeHandSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
 
     # robots
-    robot: ArticulationCfg = ALLEGRO_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+    robot: ArticulationCfg = UOA_HAND_CONFIG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
     # objects
     object: RigidObjectCfg = RigidObjectCfg(
