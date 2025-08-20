@@ -23,7 +23,8 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveGaussianNoiseCfg as Gnoise
 
-import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
+# import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
+
 
 
 ##
@@ -34,6 +35,7 @@ from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 import sys
 sys.path.append("/home/lee/code/repose_hand")
 from source.assets.uoa_hand_cfg import UOA_HAND_CONFIG  # isort: skip
+import source.repose_hand.repose_hand.tasks.manager_based.repose_hand.mdp as mdp
 ##
 # Scene definition
 ##
