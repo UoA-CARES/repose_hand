@@ -50,6 +50,9 @@ def main():
     # print info (this is vectorized environment)
     print(f"[INFO]: Gym observation space: {env.observation_space}")
     print(f"[INFO]: Gym action space: {env.action_space}")
+    # Add this after the environment is created
+    robot = env.unwrapped.scene["robot"]
+    print("Joint names:", robot.actuators["fingers"])
     # reset environment
     env.reset()
     # simulate environment

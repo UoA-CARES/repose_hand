@@ -46,7 +46,7 @@ params:
   load_path: ''
 
   config:
-    name: allegro_cube
+    name: UOA_repose_cube
     env_name: rlgpu
     device: 'cuda:0'
     device_name: 'cuda:0'
