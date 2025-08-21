@@ -102,7 +102,7 @@ UOA_HAND_CONFIG = ArticulationCfg(
         "fingers": ImplicitActuatorCfg(
             joint_names_expr=[".*"],
             velocity_limit_sim=50.0,  # deg/s (deg because of USD convention)
-            stiffness=1.0,
+            stiffness=10.0,
             damping=0.5,
             friction=0.1,
             effort_limit_sim=0.9,
