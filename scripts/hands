@@ -1,0 +1,51 @@
+
+
+### Thumb
+* `thumb_carpal_1_thumb_abd0`
+* `thumb_1_t_pp_1_thumb_mcp0`
+* `thumb_1_t_pp_1_thumb_mcp1`
+* `thumb_1_t_pp_1_thumb_mcp2`
+* `thumb_1_t_ip_1_t_pp_ip0`
+* `thumb_1_t_dp_1_t_ip_dp0`
+
+***
+
+### Index
+* `index_1_i_pp_1_index_mcp0`
+* `index_1_i_pp_1_index_mcp1`
+* `index_1_i_pp_1_index_mcp2`
+* `index_1_i_ip_1_i_pp_ip0`
+* `index_1_i_dp_1_i_ip_dp0`
+
+***
+
+### Middle
+* `middle_1_m_pp_1_middle_mcp0`
+* `middle_1_m_pp_1_middle_mcp1`
+* `middle_1_m_pp_1_middle_mcp2`
+* `middle_1_m_ip_1_m_pp_ip0`
+* `middle_1_m_dp_1_m_ip_pp0`
+
+***
+
+### Ring
+* `ring_1_r_pp_1_ring_mcp0`
+* `ring_1_r_pp_1_ring_mcp1`
+* `ring_1_r_pp_1_ring_mcp2`
+* `ring_1_r_ip_1_r_pp_ip0`
+* `ring_1_r_dp_1_r_ip_dp0`
+
+***
+
+### Pinky
+* `pinky_1_p_pp_1_pinky_mcp0`
+* `pinky_1_p_pp_1_pinky_mcp1`
+* `pinky_1_p_pp_1_pinky_mcp2`
+* `pinky_1_p_ip_1_p_pp_ip0`
+* `pinky_1_p_dp_1_p_ip_dp0`
+
+***
+
+### Palm
+* `palm_2_1_palm_abd0`
+
