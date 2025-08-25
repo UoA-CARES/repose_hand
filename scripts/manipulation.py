@@ -70,7 +70,7 @@ def main():
     env.reset()
 
     # create default actions (all joints start at 0)
-    actions = - torch.ones(env.action_space.shape, device=env.unwrapped.device)
+    actions = torch.ones(env.action_space.shape, device=env.unwrapped.device)
     
     # Print instructions
     print("\n" + "="*60)

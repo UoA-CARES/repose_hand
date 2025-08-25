@@ -65,7 +65,7 @@ UOA_HAND_CONFIG = ArticulationCfg(
         # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(-0.07, -0.16, 0.5),
+        pos=(-0.12, -0.16, 0.5),
         rot=(1., 0, 0, 0),
         joint_pos={".*": 0.001},
                 # joint_pos={
