@@ -26,10 +26,11 @@ from isaaclab.utils.noise import AdditiveGaussianNoiseCfg as Gnoise
 import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
 
 from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
+from isaaclab_assets.robots.shadow_hand import SHADOW_HAND_CFG 
+
 ##
 # Pre-defined configs
 ##
-from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 
 ##
 # Scene definition
@@ -41,7 +42,13 @@ class ReposeHandSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
 
     # robots
-    robot: ArticulationCfg = ALLEGRO_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+    robot: ArticulationCfg = SHADOW_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot").replace(
+        init_state=ArticulationCfg.InitialStateCfg(
+            pos=(0.0, 0.15, 0.5),
+            rot=(1.0, 0.0, 0.0, 0.0),
+            joint_pos={".*": 0.0},
+        )
+    )
 
     # objects
     object: RigidObjectCfg = RigidObjectCfg(
@@ -301,7 +308,7 @@ class TerminationsCfg:
         func=mdp.max_consecutive_success, params={"num_success": 50, "command_name": "object_pose"}
     )
 
-    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 0.3})
+    object_out_of_reach = DoneTerm(func=mdp.object_away_from_robot, params={"threshold": 0.5})
 
     # object_out_of_reach = DoneTerm(
     #     func=mdp.object_away_from_goal, params={"threshold": 0.24, "command_name": "object_pose"}
