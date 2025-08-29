@@ -28,6 +28,10 @@ import isaaclab_tasks.manager_based.manipulation.inhand.mdp as mdp
 from isaaclab_assets import ALLEGRO_HAND_CFG  # isort: skip
 from isaaclab_assets.robots.shadow_hand import SHADOW_HAND_CFG 
 
+import sys
+sys.path.append('/home/lee/code/repose_hand')
+
+from source.assets.uoa_hand_config import UOA_HAND_CONFIG  # isort: skip
 ##
 # Pre-defined configs
 ##
@@ -42,13 +46,7 @@ class ReposeHandSceneCfg(InteractiveSceneCfg):
     """Configuration for a scene with an object and a dexterous hand."""
 
     # robots
-    robot: ArticulationCfg = SHADOW_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot").replace(
-        init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0.0, 0.15, 0.5),
-            rot=(1.0, 0.0, 0.0, 0.0),
-            joint_pos={".*": 0.0},
-        )
-    )
+    robot: ArticulationCfg = UOA_HAND_CONFIG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
     # objects
     object: RigidObjectCfg = RigidObjectCfg(
