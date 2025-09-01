@@ -27,27 +27,30 @@ UOA_HAND_CONFIG = ArticulationCfg(
         usd_path="/home/lee/code/repose_hand/source/assets/uoa_hand_v5.usd",
         # VERY IMPORTANT
         joint_drive_props=sim_utils.JointDrivePropertiesCfg(drive_type="force"),
-        # fixed_tendons_props=sim_utils.FixedTendonPropertiesCfg(limit_stiffness=30.0, damping=0.1),
-        activate_contact_sensors=False,
+        # Not using explicit tendon properties since we're simulating with joints
+        activate_contact_sensors=False,  # Enable to get better feedback during interactions
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
             retain_accelerations=False,
             enable_gyroscopic_forces=False,
-            angular_damping=0.01,
-            max_linear_velocity=1.0,
-            max_angular_velocity=40,
-            max_depenetration_velocity=10.0,
-            max_contact_impulse=1e32,
+            angular_damping=0.05,  # Increased damping for tendon-like behavior
+            max_linear_velocity=0.8,  # Lower max velocity for tendon-driven system
+            max_angular_velocity=25.0,  # Lower max angular velocity
+            max_depenetration_velocity=5.0,  # Lower for more stable contacts
+            max_contact_impulse=1e4,  # Reduced for more realistic contact forces
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
             enabled_self_collisions=True,
-            solver_position_iteration_count=8,
-            solver_velocity_iteration_count=0,
+            solver_position_iteration_count=12,  # Increased for better convergence
+            solver_velocity_iteration_count=4,   # Added velocity iterations for tendon-like dynamics
             sleep_threshold=0.005,
-            stabilization_threshold=0.0005,
+            stabilization_threshold=0.001,
             fix_root_link=True,  # Fix the base in space
         ),
-        # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
+        collision_props=sim_utils.CollisionPropertiesCfg(
+            contact_offset=0.008,  # Increased for softer contacts
+            rest_offset=0.002      # Added small rest offset for compliance
+        ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(-0.12, -0.16, 0.4),
@@ -86,15 +89,14 @@ UOA_HAND_CONFIG = ArticulationCfg(
     actuators={
         "fingers": ImplicitActuatorCfg(
             joint_names_expr=[".*"],
-            velocity_limit_sim=50.0,  # deg/s (deg because of USD convention)
-            # stiffness=1e+6,
-            # damping=1e+4,
-            stiffness=10,
-            damping=0.1,
-            friction=0.8,
-            dynamic_friction=0.6,
-            effort_limit_sim=3,
+            velocity_limit_sim=30.0,  # Reduced for tendon-like behavior
+            # Realistic values for tendon-driven system modeled with joints:
+            stiffness=4.5,           # Lower stiffness to simulate tendon elasticity
+            damping=0.35,            # Higher damping to model energy dissipation in tendons
+            friction=0.45,           # Moderate friction to simulate tendon routing friction
+            dynamic_friction=0.35,   # Reduced dynamic friction
+            effort_limit_sim=1.8,    # Lower effort limit to better match tendon force transmission
         ),
     },
-    soft_joint_pos_limit_factor=0.95,
+    soft_joint_pos_limit_factor=0.92,  # More conservative limit for tendon system
 )
