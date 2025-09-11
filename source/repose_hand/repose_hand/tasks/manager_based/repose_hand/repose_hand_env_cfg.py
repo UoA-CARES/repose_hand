@@ -354,6 +354,7 @@ class ReposeHandEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
         # change viewer settings
         self.viewer.eye = (2.0, 2.0, 2.0)
+        self.viewer.lookat = (-0.12, -0.16, 0.4)
         # switch robot to allegro hand
         # self.scene.robot = ALLEGRO_HAND_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         # enable clone in fabric
@@ -394,7 +395,7 @@ class ReposeHandNoVelObsEnvCfg_PLAY(ReposeHandNoVelObsEnvCfg):
         # post init of parent
         super().__post_init__()
         # make a smaller scene for play
-        self.scene.num_envs = 50
+        self.scene.num_envs = 1
         # disable randomization for play
         self.observations.policy.enable_corruption = False
         # remove termination due to timeouts
