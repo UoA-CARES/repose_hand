@@ -24,7 +24,7 @@ from isaaclab.assets.articulation import ArticulationCfg
 UOA_HAND_CONFIG = ArticulationCfg(
     prim_path="{ENV_REGEX_NS}/Robot",
     spawn=sim_utils.UsdFileCfg(
-        usd_path="/home/lee/code/repose_hand/source/assets/uoa_hand_v5.usd",
+        usd_path="source/assets/uoa_hand_v5.usd",
         # VERY IMPORTANT
         joint_drive_props=sim_utils.JointDrivePropertiesCfg(drive_type="force"),
         # fixed_tendons_props=sim_utils.FixedTendonPropertiesCfg(limit_stiffness=30.0, damping=0.1),

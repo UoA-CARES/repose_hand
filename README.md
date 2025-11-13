@@ -1,135 +1,94 @@
-# Template for Isaac Lab Projects
+### Purpose of this task
+# TODO: emphasis this is an manager based env from isaaclab
+This repository contains an Isaac Lab extension and example tasks for the "repose_hand" project — a minimal Isaac Lab-based environment and tooling for experimenting with hand/robot reposing and manipulation tasks. It includes example scripts to:
+- run environments in GUI or headless mode,
+- collect and annotate demonstrations,
+- run simple agents (zero/random),
+- and run training using Isaac Lab wrappers.
 
-## Overview
+### Run with Docker
+We provide two useful docker commands for the official Isaac Lab image. Adapt host paths as needed (cache, logs, data volumes).
 
-This project/repository serves as a template for building projects or extensions based on Isaac Lab.
-It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
-
-**Key Features:**
-
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
-
-**Keywords:** extension, template, isaaclab
-
-## Installation
-
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-  We recommend using the conda installation as it simplifies calling Python scripts from the terminal.
-
-- Clone or copy this project/repository separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
-
-- Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:
-
-    ```bash
-    # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-    python -m pip install -e source/repose_hand
-
-- Verify that the extension is correctly installed by:
-
-    - Listing the available tasks:
-
-        Note: It the task name changes, it may be necessary to update the search pattern `"Template-"`
-        (in the `scripts/list_envs.py` file) so that it can be listed.
-
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/list_envs.py
-        ```
-
-    - Running a task:
-
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
-        ```
-
-    - Running a task with dummy agents:
-
-        These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
-
-        - Zero-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/zero_agent.py --task=<TASK_NAME>
-            ```
-        - Random-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/random_agent.py --task=<TASK_NAME>
-            ```
-
-### Set up IDE (Optional)
-
-To setup the IDE, please follow these instructions:
-
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu.
-  When running this task, you will be prompted to add the absolute path to your Isaac Sim installation.
-
-If everything executes correctly, it should create a file .python.env in the `.vscode` directory.
-The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse.
-This helps in indexing all the python modules for intelligent suggestions while writing code.
-
-### Setup as Omniverse Extension (Optional)
-
-We provide an example UI extension that will load upon enabling your extension defined in `source/repose_hand/repose_hand/ui_extension_example.py`.
-
-To enable your extension, follow these steps:
-
-1. **Add the search path of this project/repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon**, then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to the `source` directory of this project/repository.
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source`)
-    - Click on the **Hamburger Icon**, then click `Refresh`.
-
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
-
-## Code formatting
-
-We have a pre-commit template to automatically format your code.
-To install pre-commit:
-
+Machine with screen (X11 forwarding):
 ```bash
-pip install pre-commit
+# Launch container with X11 rendering enabled (use on workstation with display)
+xhost +
+docker run --name isaac-lab --entrypoint bash -it --gpus all -e "ACCEPT_EULA=Y" --network=host \
+   -e "PRIVACY_CONSENT=Y" \
+   -e DISPLAY \
+   -v $HOME/.Xauthority:/root/.Xauthority \
+   -v $(pwd):/workspace/repose_hand:rw \
+   -v ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw \
+   -v ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw \
+   -v ~/docker/isaac-sim/cache/pip:/root/.cache/pip:rw \
+   -v ~/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw \
+   -v ~/docker/isaac-sim/cache/computecache:/root/.nv/ComputeCache:rw \
+   -v ~/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw \
+   -v ~/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
+   -v ~/docker/isaac-sim/documents:/root/Documents:rw \
+   nvcr.io/nvidia/isaac-lab:2.2.0
 ```
 
-Then you can run pre-commit with:
-
+Headless machine (no display):
 ```bash
-pre-commit run --all-files
+# Launch container for headless use (no DISPLAY forwarding)
+docker run --name isaac-lab --entrypoint bash -it --gpus all -e "ACCEPT_EULA=Y" --network=host \
+   -e "PRIVACY_CONSENT=Y" \
+   -v $(pwd):/workspace/repose_hand:rw \
+   -v ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw \
+   -v ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw \
+   -v ~/docker/isaac-sim/cache/pip:/root/.cache/pip:rw \
+   -v ~/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw \
+   -v ~/docker/isaac-sim/cache/computecache:/root/.nv/ComputeCache:rw \
+   -v ~/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw \
+   -v ~/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
+   -v ~/docker/isaac-sim/documents:/root/Documents:rw \
+   nvcr.io/nvidia/isaac-lab:2.2.0
 ```
 
-## Troubleshooting
+# TODO: change all the Template-Repose-Hand-v0  to Template-Repose-Hand-v0 
+# TODO: I have really change all the isaaclab launcher to normal python, pls change the commit to align with my new change
+### How to run training
+Use the isaaclab launcher script to invoke training scripts inside the repo. Replace Template-Repose-Hand-v0  and other args as needed.
 
-### Pylance Missing Indexing of Extensions
-
-In some VsCode versions, the indexing of part of the extensions is missing.
-In this case, add the path to your extension in `.vscode/settings.json` under the key `"python.analysis.extraPaths"`.
-
-```json
-{
-    "python.analysis.extraPaths": [
-        "<path-to-ext-repo>/source/repose_hand"
-    ]
-}
+Example (robomimic BC training):
+```bash
+# run training (headless)
+python scripts/imitation_learning/robomimic/train.py --task Template-Repose-Hand-v0  --algo bc --dataset <DATASET_PATH> --headless
 ```
 
-### Pylance Crash
+Example (RL training using RL-Games or another trainer):
+```bash
+python scripts/reinforcement_learning/rl_games/train.py --task Template-Repose-Hand-v0  --headless
+```
 
-If you encounter a crash in `pylance`, it is probable that too many files are indexed and you run out of memory.
-A possible solution is to exclude some of omniverse packages that are not used in your project.
-To do so, modify `.vscode/settings.json` and comment out packages under the key `"python.analysis.extraPaths"`
-Some examples of packages that can likely be excluded are:
+### How to run / play an environment interactively
+To run a small demo in GUI (use the docker X11 command above or run locally with Isaac Sim installed):
+```bash
+# A simple GUI example that spawns a scene
+python scripts/reinforcement_learning/rl_games/play.py --task Template-Repose-Hand-v0  --num_envs 4
+```
 
-```json
-"<path-to-isaac-sim>/extscache/omni.anim.*"         // Animation packages
-"<path-to-isaac-sim>/extscache/omni.kit.*"          // Kit UI tools
-"<path-to-isaac-sim>/extscache/omni.graph.*"        // Graph UI tools
-"<path-to-isaac-sim>/extscache/omni.services.*"     // Services tools
-...
+For teleoperation or recording demos, use the mimic consolidated demo script (keyboard teleop by default):
+```bash
+python scripts/imitation_learning/isaaclab_mimic/consolidated_demo.py --task Template-Repose-Hand-v0  --teleop_device keyboard
+```
+
+### Zero-action agent
+Quick test agent that applies zero actions to validate environment setup:
+```bash
+python scripts/zero_agent.py --task Template-Repose-Hand-v0 
+```
+
+### Random-action agent
+Quick test agent that applies random actions:
+```bash
+python scripts/random_agent.py --task Template-Repose-Hand-v0 
+```
+
+### Listing the available tasks
+A helper script lists registered tasks/environments available in the current Python environment:
+```bash
+# If using the isaaclab launcher:
+python scripts/list_envs.py
 ```
